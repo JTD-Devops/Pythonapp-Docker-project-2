@@ -1,92 +1,62 @@
 services:
   database:
-    build: ./database
-    container_name: novels-db
+    image: devikadockhub/pyapp:database-image
+    deploy:
+      replicas: 2
     ports:
       - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpass
-      - MYSQL_DATABASE=novels_db
-      - MYSQL_USER=novels_user
-      - MYSQL_PASSWORD=novels_pass
-    volumes:
-      - mysql_data:/var/lib/mysql
     networks:
-      - mynetwork
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
+      - python-network
+
 
   auth:
-    build: ./auth
-    container_name: auth-service
+    image: devikadockhub/pyapp:auth-image
+    deploy:
+      replicas: 2
     ports:
       - "5001:5001"
-    environment:
-      - DATABASE_URL=mysql+pymysql://novels_user:novels_pass@database:3306/novels_db
-      - SECRET_KEY=your-secret-key-change-in-production
-    depends_on:
-      database:
-        condition: service_healthy
     networks:
-      - mynetwork
-    restart: unless-stopped
-
-  book:
-    build: ./book
-    container_name: book-service
-    ports:
-      - "5002:5002"
-    environment:
-      - DATABASE_URL=mysql+pymysql://novels_user:novels_pass@database:3306/novels_db
+      - python-network
     depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - mynetwork
-    restart: unless-stopped
+      - database
 
   borrow:
-    build: ./borrow
-    container_name: borrow-service
+    image: devikadockhub/pyapp:borrow-image
+    deploy:
+      replicas: 2
     ports:
       - "5003:5003"
-    environment:
-      - DATABASE_URL=mysql+pymysql://novels_user:novels_pass@database:3306/novels_db
-    depends_on:
-      database:
-        condition: service_healthy
     networks:
-      - mynetwork
-    restart: unless-stopped
+      - python-network
+    depends_on:
+      - database
+
+  book:
+    image: devikadockhub/pyapp:book-image
+    deploy:
+      replicas: 2
+    ports:
+      - "5002:5002"
+    networks:
+      - python-network
+    depends_on:
+      - database
 
   frontend:
-    build: .
-    container_name: novels-web
+    image: devikadockhub/pyapp:frontend-image
+    deploy:
+      replicas: 2
     ports:
       - "5000:5000"
-    environment:
-      - AUTH_SERVICE=http://auth:5001
-      - BOOK_SERVICE=http://book:5002
-      - BORROW_SERVICE=http://borrow:5003
-      - SECRET_KEY=your-secret-key-change-in-production
+    networks:
+      - python-network
     depends_on:
       - auth
-      - book
       - borrow
-    volumes:
-      - ./templates:/app/templates
-      - ./static:/app/static
-    networks:
-      - mynetwork
-    restart: unless-stopped
+      - book
+
 
 networks:
-  mynetwork:
-    driver: bridge
+  python-network:
+    driver: overlay
 
-volumes:
-  mysql_data:
