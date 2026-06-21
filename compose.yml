@@ -1,0 +1,92 @@
+services:
+  database:
+    build: ./database
+    container_name: novels-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=novels_db
+      - MYSQL_USER=novels_user
+      - MYSQL_PASSWORD=novels_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mynetwork
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  auth:
+    build: ./auth
+    container_name: auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - DATABASE_URL=mysql+pymysql://novels_user:novels_pass@database:3306/novels_db
+      - SECRET_KEY=your-secret-key-change-in-production
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - mynetwork
+    restart: unless-stopped
+
+  book:
+    build: ./book
+    container_name: book-service
+    ports:
+      - "5002:5002"
+    environment:
+      - DATABASE_URL=mysql+pymysql://novels_user:novels_pass@database:3306/novels_db
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - mynetwork
+    restart: unless-stopped
+
+  borrow:
+    build: ./borrow
+    container_name: borrow-service
+    ports:
+      - "5003:5003"
+    environment:
+      - DATABASE_URL=mysql+pymysql://novels_user:novels_pass@database:3306/novels_db
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - mynetwork
+    restart: unless-stopped
+
+  frontend:
+    build: .
+    container_name: novels-web
+    ports:
+      - "5000:5000"
+    environment:
+      - AUTH_SERVICE=http://auth:5001
+      - BOOK_SERVICE=http://book:5002
+      - BORROW_SERVICE=http://borrow:5003
+      - SECRET_KEY=your-secret-key-change-in-production
+    depends_on:
+      - auth
+      - book
+      - borrow
+    volumes:
+      - ./templates:/app/templates
+      - ./static:/app/static
+    networks:
+      - mynetwork
+    restart: unless-stopped
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  mysql_data:
