@@ -382,33 +382,10 @@ open http://localhost:5000
 - Identified 20 security hotspots and 11 code smells as technical debt items for future improvement
 - Measured code duplication at 5.0% across 959 lines — a real baseline metric to track going forward
 
----
 
-## 📸 Screenshot Upload Status
-
-All images uploaded to the **root** of this repo ✅
-
-| # | Filename | Section | Status |
-|---|---|---|---|
-| 1 | `Loginpage-Novelhub.png` | Login Page | ✅ Uploaded |
-| 2 | `Homepage-Novelhub.png` | Dashboard / Homepage | ✅ Uploaded |
-| 3 | `availablenovels-Novelhub.png` | Available Novels | ✅ Uploaded |
-| 4 | `Borrowednovels-Novelhub.png` | My Borrowed Novels | ✅ Uploaded |
-| 5 | `Database-Novelhub.png` | MySQL Database Tables | ✅ Uploaded |
-| 6 | `Sonarqube.png` | SonarQube Quality Gate | ✅ Uploaded |
-| 7 | `Jenkinspipeline-1.png` | Jenkins Pipeline (top half) | ✅ Uploaded |
-| 8 | `Jenkinspipeline-2.png` | Jenkins Pipeline (bottom half) | ✅ Uploaded |
-
----
-
-## 🔗 Links
-
-- **Docker Hub:** https://hub.docker.com/u/devikadockhub
-- **GitHub Repo:** https://github.com/JTD-Devops/Pythonapp-Docker-project-2
-
----
 
 ## 👤 Author
 
-**Devika** | DevOps Engineer
+**Juttu Devika** | Associate-DevOps
+
 Built with 🐍 Python · 🐳 Docker · ⚙️ Jenkins · 🔍 SonarQube · 🛡️ Trivy · 🐬 MySQL · ☁️ AWS EC2
